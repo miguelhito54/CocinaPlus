@@ -28,8 +28,17 @@ const Perfil = () => {
       <Text style={styles.header}>Perfil</Text>
       <View style={styles.userInfo}>
         {user.photoURL ? (
-          <Image source={{ uri: user.photoURL }} style={styles.avatar} />
-        ) : null}
+          <Image
+            source={{ uri: user.photoURL }}
+            style={styles.avatar}
+            onError={() => setUser((prev) => ({ ...prev, photoURL: '' }))}
+          />
+        ) : (
+          <Image
+            source={require('../../assets/images/default.png')} // Ruta de una imagen predeterminada
+            style={styles.avatar}
+          />
+        )}
         <Text style={styles.label}>Nombre:</Text>
         <Text style={styles.value}>{user.displayName}</Text>
         <Text style={styles.label}>Correo:</Text>
