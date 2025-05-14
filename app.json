@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "recetaspage",
-    "slug": "recetaspage",
+    "name": "CocinaPlus",
+    "slug": "CocinaPlus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
