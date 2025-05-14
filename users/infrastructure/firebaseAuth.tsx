@@ -1,6 +1,11 @@
 import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider, facebookProvider } from "../../.env/firebaseConfig";
 
+// Ensure Firebase is initialized
+if (!auth || !googleProvider || !facebookProvider) {
+  throw new Error("Firebase has not been initialized properly. Check your configuration.");
+}
+
 interface NavigateFunction {
   (path: string): void;
 }

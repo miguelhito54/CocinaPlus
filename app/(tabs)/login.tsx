@@ -2,8 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { signInWithGoogle, signInWithFacebook } from '../../users/infrastructure/firebaseAuth';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const LoginScreen = () => {
   const router = useRouter();
