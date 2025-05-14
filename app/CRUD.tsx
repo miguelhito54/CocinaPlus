@@ -1,5 +1,5 @@
 import React from 'react';
-import RecipeesCRUD from '../../components/RecipeesCRUD';
+import RecipeesCRUD from '../components/RecipeesCRUD';
    
       const MyPage: React.FC = () => {
         return (
