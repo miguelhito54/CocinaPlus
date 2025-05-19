@@ -1,82 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { handleLogout } from '../../users/infrastructure/firebaseAuth';
-import { View, Text, StyleSheet, Button, Image } from 'react-native';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+
+const AVATAR_URL = 'https://i.pravatar.cc/150?img=3'; 
 
 const Perfil = () => {
-  const [user, setUser] = useState({ displayName: '', email: '', photoURL: '' });
+  const router = useRouter();
 
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser({
-          displayName: currentUser.displayName || '',
-          email: currentUser.email || '',
-          photoURL: currentUser.photoURL || '',
-        });
-      } else {
-        setUser({ displayName: '', email: '', photoURL: '' });
-      }
-    });
+  const handleLogout = () => {
+    console.log('User logged out');
+  };
 
-    return () => unsubscribe(); // Cleanup listener on unmount
-  }, []);
+  const handleCrudNavigate = () => {
+    router.push('/CRUD');
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Perfil</Text>
-      <View style={styles.userInfo}>
-        {user.photoURL ? (
-          <Image
-            source={{ uri: user.photoURL }}
-            style={styles.avatar}
-            onError={() => setUser((prev) => ({ ...prev, photoURL: '' }))}
-          />
-        ) : (
-          <Image
-            source={require('../../assets/images/default.png')} // Ruta de una imagen predeterminada
-            style={styles.avatar}
-          />
-        )}
-        <Text style={styles.label}>Nombre:</Text>
-        <Text style={styles.value}>{user.displayName}</Text>
-        <Text style={styles.label}>Correo:</Text>
-        <Text style={styles.value}>{user.email}</Text>
+    <View style={viewStyles.outerContainer}>
+      <View style={viewStyles.container}>
+        <Text style={textStyles.header}>Mi Perfil</Text>
+        <View style={viewStyles.card}>
+          <Image source={{ uri: AVATAR_URL }} style={viewStyles.avatar} />
+          <Text style={textStyles.name}>Miguel</Text>
+          <Text style={textStyles.email}>miguel@example.com</Text>
+          <TouchableOpacity style={viewStyles.editButton} onPress={handleCrudNavigate}>
+            <Text style={textStyles.editText}>
+              <AntDesign name="edit" size={20} color="#5a4633" /> Gestionar recetas
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={viewStyles.logoutButton} onPress={handleLogout}>
+          <Text style={textStyles.logoutText}>Cerrar sesión</Text>
+        </TouchableOpacity>
       </View>
-      <Button title="Cerrar sesión" onPress={handleLogout} />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
+export default Perfil;
+
+import { ViewStyle, TextStyle, ImageStyle } from 'react-native';
+
+const viewStyles = StyleSheet.create<{
+  outerContainer: ViewStyle;
+  container: ViewStyle;
+  card: ViewStyle;
+  avatar: ImageStyle;
+  editButton: ViewStyle;
+  logoutButton: ViewStyle;
+}>({
+  outerContainer: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FAF3EC',
+    alignItems: 'center',
+    minHeight: Platform.OS === 'web' ? undefined : undefined, // Remove '100vh' for web, as it's not valid ViewStyle
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  container: {
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    paddingTop: 40,
+    paddingHorizontal: 24,
   },
-  userInfo: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  value: {
-    fontSize: 16,
-    marginBottom: 10,
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 24,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 20,
+    backgroundColor: '#E6D5C3',
+    marginBottom: 16,
+  },
+  editButton: {
+    backgroundColor: '#DAB49D',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 14,
+  },
+  logoutButton: {
+    marginTop: 10,
+    backgroundColor: '#B65D45',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    alignSelf: 'center',
   },
 });
 
-export default Perfil;
+const textStyles = StyleSheet.create<{
+  header: TextStyle;
+  name: TextStyle;
+  email: TextStyle;
+  editText: TextStyle;
+  logoutText: TextStyle;
+}>({
+  header: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#5A3E2B',
+    marginBottom: 30,
+    textAlign: 'center',
+    marginTop: 30,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#3E2C23',
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 15,
+    color: '#7D5F4B',
+    marginBottom: 20,
+  },
+  editText: {
+    fontSize: 15,
+    color: '#4B2F22',
+    fontWeight: '500',
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

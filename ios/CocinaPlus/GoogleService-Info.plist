@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>766413818179-hqt7er3pm88nohnjci982vjj590j0qk6.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.766413818179-hqt7er3pm88nohnjci982vjj590j0qk6</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>766413818179-lgdg2ojds5npq3huv60b8sv25ssn3vk1.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBQ5wAAcusJ-_22eJv7Zdu8B2JUl_YqFdc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>766413818179</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>CocinaPlus</string>
+	<key>PROJECT_ID</key>
+	<string>recetasappmobile</string>
+	<key>STORAGE_BUCKET</key>
+	<string>recetasappmobile.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:766413818179:ios:2d4b650790e69563bd47f6</string>
+</dict>
+</plist>

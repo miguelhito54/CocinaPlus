@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "766413818179",
+    "project_id": "recetasappmobile",
+    "storage_bucket": "recetasappmobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766413818179:android:bcf1441bbd6c6dbcbd47f6",
+        "android_client_info": {
+          "package_name": "com.anonymous.recetaspage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "766413818179-lgdg2ojds5npq3huv60b8sv25ssn3vk1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.recetaspage",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "766413818179-skhkt15ibcvec5s8rsgcsvinpdicuhrn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr7nYl1cBUhmklUjFd2SdV6HE-pMGR3pY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "766413818179-skhkt15ibcvec5s8rsgcsvinpdicuhrn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "766413818179-hqt7er3pm88nohnjci982vjj590j0qk6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "CocinaPlus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -12,7 +12,7 @@ export class RecipeRepository {
         doc.id,
         data.name,
         data.ingredients,
-        data.category,
+        data.category, 
         data.instructions,
         data.imageUrl || "" 
       );
