@@ -54,12 +54,8 @@ const RecipeDetail: React.FC = () => {
                     headerTitle: '', // Remove title
                     headerStyle: {
                         backgroundColor: '#FFF8F0',
-                        shadowOpacity: 0,
-                        borderBottomWidth: 0,
-                        height: 48,
                     },
                     headerBackTitle: '', // <-- This removes the previous page name
-                    headerBackTitleVisible: false, // <-- This hides the back title
                     headerTintColor: '#782701',
                 }}
             />

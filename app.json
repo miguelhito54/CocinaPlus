@@ -2,10 +2,11 @@
   "expo": {
     "name": "CocinaPlus",
     "slug": "CocinaPlus",
+    "owner": "miguelhyto",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "cocinamas",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -58,6 +59,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8a0eb392-0fc9-42a0-bf19-154a1b69ae24"
+      }
     }
   }
 }

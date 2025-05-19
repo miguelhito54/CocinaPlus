@@ -180,19 +180,20 @@ const RecipeesCRUD: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    paddingTop: 40, // Added padding to the top
-    backgroundColor: '#f8f8f8',
+    paddingTop: 40,
+    backgroundColor: '#FFF8F0', // Match login background
+    minHeight: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#212121',
+    color: '#782701', // Match login accent
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 10, // Match login button radius
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: '#782701', // Match login accent
   },
   ingredientRow: {
     flexDirection: 'row',
@@ -219,8 +220,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginLeft: 10,
-    backgroundColor: '#e63946',
-    borderRadius: 8,
+    backgroundColor: '#B65D45',
+    borderRadius: 10,
     padding: 10,
   },
   deleteButtonText: {
@@ -228,18 +229,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: '#A3D9B1',
-    borderRadius: 8,
+    backgroundColor: '#782701', // Match login accent
+    borderRadius: 10,
     padding: 10,
     alignItems: 'center',
+    marginTop: 4,
   },
   addButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
   createButton: {
-    backgroundColor: '#2a9d8f',
-    borderRadius: 8,
+    backgroundColor: '#782701', // Match login accent
+    borderRadius: 10,
     padding: 15,
     alignItems: 'center',
     marginBottom: 20,
@@ -255,8 +257,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   updateButton: {
-    backgroundColor: '#2a9d8f',
-    borderRadius: 8,
+    backgroundColor: '#782701', // Match login accent
+    borderRadius: 10,
     padding: 15,
     flex: 1,
     marginRight: 10,
@@ -270,30 +272,31 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#782701', // Match login accent
     marginBottom: 10,
+    textAlign: 'center',
   },
   recipeCard: {
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 16,
     padding: 15,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#ddd',
   },
   selectedRecipeCard: {
-    borderColor: '#2a9d8f',
+    borderColor: '#782701', // Match login accent
     borderWidth: 2,
   },
   recipeName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#782701', // Match login accent
     marginBottom: 5,
   },
   recipeDetails: {
     fontSize: 14,
-    color: '#666',
+    color: '#333',
   },
 });
 

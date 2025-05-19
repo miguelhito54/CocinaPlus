@@ -2,14 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const AVATAR_URL = 'https://i.pravatar.cc/150?img=3'; 
+import { auth } from '../../.env/firebaseConfig'; // Adjust path if needed
 
 const Perfil = () => {
   const router = useRouter();
+  const user = auth.currentUser;
 
-  const handleLogout = () => {
-    console.log('User logged out');
+   const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const handleCrudNavigate = () => {
@@ -21,12 +26,43 @@ const Perfil = () => {
       <View style={viewStyles.container}>
         <Text style={textStyles.header}>Mi Perfil</Text>
         <View style={viewStyles.card}>
-          <Image source={{ uri: AVATAR_URL }} style={viewStyles.avatar} />
-          <Text style={textStyles.name}>Miguel</Text>
-          <Text style={textStyles.email}>miguel@example.com</Text>
-          <TouchableOpacity style={viewStyles.editButton} onPress={handleCrudNavigate}>
+          {user?.photoURL ? (
+            Platform.OS === 'web' ? (
+              // Use native <img> for web to avoid CORS issues with react-native-web's Image
+              <img
+                src={user.photoURL}
+                alt="avatar"
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  objectFit: 'cover',
+                  backgroundColor: '#E6D5C3',
+                  marginBottom: 16,
+                  display: 'block'
+                }}
+                onError={e => { e.currentTarget.style.display = 'none'; }}
+              />
+            ) : (
+              <Image source={{ uri: user.photoURL }} style={viewStyles.avatar} />
+            )
+          ) : (
+            <View style={[viewStyles.avatar, { backgroundColor: '#E6D5C3', justifyContent: 'center', alignItems: 'center' }]}>
+              <AntDesign name="user" size={48} color="#b0a18e" />
+            </View>
+          )}
+          <Text style={textStyles.name}>{user?.displayName || "Invitado"}</Text>
+          <Text style={textStyles.email}>{user?.email || "Sin email"}</Text>
+          <TouchableOpacity
+            style={[
+              viewStyles.editButton,
+              !user && { opacity: 0.5 }
+            ]}
+            onPress={handleCrudNavigate}
+            disabled={!user}
+          >
             <Text style={textStyles.editText}>
-              <AntDesign name="edit" size={20} color="#5a4633" /> Gestionar recetas
+              <AntDesign name="edit" size={20} color="#fff" /> Gestionar recetas
             </Text>
           </TouchableOpacity>
         </View>
@@ -52,9 +88,9 @@ const viewStyles = StyleSheet.create<{
 }>({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#FAF3EC',
+    backgroundColor: '#FFF8F0', // Match login background
     alignItems: 'center',
-    minHeight: Platform.OS === 'web' ? undefined : undefined, // Remove '100vh' for web, as it's not valid ViewStyle
+    minHeight: Platform.OS === 'web' ? undefined : undefined,
   },
   container: {
     width: '100%',
@@ -64,17 +100,17 @@ const viewStyles = StyleSheet.create<{
     paddingHorizontal: 24,
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: '#fff', // Match login card
+    borderRadius: 16,        // Match login card radius
     paddingVertical: 32,
     paddingHorizontal: 24,
     width: '100%',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.1,      // Match login shadow
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
-    elevation: 4,
+    elevation: 5,
     marginBottom: 24,
   },
   avatar: {
@@ -85,17 +121,18 @@ const viewStyles = StyleSheet.create<{
     marginBottom: 16,
   },
   editButton: {
-    backgroundColor: '#DAB49D',
+    backgroundColor: '#782701', // Match login accent
     paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 14,
+    borderRadius: 10,           // Match login button radius
+    marginTop: 10,
   },
   logoutButton: {
     marginTop: 10,
     backgroundColor: '#B65D45',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 16,
+    borderRadius: 10,           // Match login button radius
     alignSelf: 'center',
   },
 });
@@ -110,7 +147,7 @@ const textStyles = StyleSheet.create<{
   header: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#5A3E2B',
+    color: '#782701', // Match login accent
     marginBottom: 30,
     textAlign: 'center',
     marginTop: 30,
@@ -128,7 +165,7 @@ const textStyles = StyleSheet.create<{
   },
   editText: {
     fontSize: 15,
-    color: '#4B2F22',
+    color: '#fff', // White text for dark button
     fontWeight: '500',
   },
   logoutText: {

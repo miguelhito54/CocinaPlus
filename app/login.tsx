@@ -5,33 +5,46 @@ import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
-import { makeRedirectUri } from 'expo-auth-session';
+import * as AuthSession from 'expo-auth-session';
+import { auth } from '../.env/firebaseConfig'; // Adjust path if needed
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, FACEBOOK_APP_ID } from '../.env/clientsData';
+import { signInWithCredential, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth'; // Import directly
 
 // Register your app with WebBrowser
 WebBrowser.maybeCompleteAuthSession();
 
-const redirectUri = makeRedirectUri();
-console.log("Google OAuth redirectUri:", redirectUri);
+// NOTE: Custom scheme URIs (like cocinamas://redirect) only work in standalone or dev builds (not Expo Go).
+// If you see exp://... you are running in Expo Go. Use `npx expo run:android` or `npx expo run:ios` for dev builds.
+
+// WARNING: On Expo Go, you will always get exp://... as the redirectUri and Google login will NOT work on device.
+// To use Google login on a real device, run a dev build (`npx expo run:ios` or `npx expo run:android`)
+// or build a standalone app with EAS Build. Expo Go does NOT support custom schemes.
+// Use Expo proxy redirect URI for Expo Go compatibility
+
+// Log the Facebook redirect URI for debugging and Facebook console setup
+console.log('Facebook OAuth redirect URI:', AuthSession.makeRedirectUri({ useProxy: true }));
 
 const LoginScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fbLoading, setFbLoading] = useState(false);
 
   // Google Authentication setup
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    clientId: Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : GOOGLE_ANDROID_CLIENT_ID,
+    clientId: Platform.OS === 'web'
+      ? GOOGLE_WEB_CLIENT_ID
+      : Platform.OS === 'ios'
+        ? GOOGLE_IOS_CLIENT_ID
+        : GOOGLE_ANDROID_CLIENT_ID,
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    redirectUri, // Explicitly set the redirect URI
+    responseType: 'id_token', // Explicitly request id_token
   });
 
   // Facebook Authentication setup
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
     clientId: FACEBOOK_APP_ID,
-    scopes: ['email'], // Request the email permission
-    redirectUri, // Explicitly set the redirect URI
   });
 
   const handleGoogleLogin = async () => {
@@ -55,8 +68,8 @@ const LoginScreen = () => {
         setLoading(false);
         return;
       }
-      const credential = auth.GoogleAuthProvider.credential(id_token);
-      auth().signInWithCredential(credential)
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
         .then((result) => {
           console.log("Google Sign-In Success:", result.user);
           router.push("/Perfil");
@@ -74,31 +87,39 @@ const LoginScreen = () => {
   // Handle Facebook Sign In
   useEffect(() => {
     if (facebookResponse?.type === 'success') {
-      setLoading(true);
+      setFbLoading(true);
       const { access_token } = facebookResponse.params;
-      
-      const credential = auth.FacebookAuthProvider.credential(access_token);
-      auth().signInWithCredential(credential)
+      if (!access_token) {
+        alert("No access token returned from Facebook");
+        setFbLoading(false);
+        return;
+      }
+      const credential = FacebookAuthProvider.credential(access_token);
+      signInWithCredential(auth, credential)
         .then((result) => {
           console.log("Facebook Sign-In Success:", result.user);
-          router.push("/Perfil");
+          // Redirect to Perfil after successful sign-in
+          router.replace("/Perfil");
         })
         .catch((error) => {
           console.error("Facebook Sign-In Error:", error);
           alert("Error signing in with Facebook: " + error.message);
         })
         .finally(() => {
-          setLoading(false);
+          setFbLoading(false);
         });
     }
   }, [facebookResponse]);
 
   const handleFacebookLogin = async () => {
     try {
+      setFbLoading(true);
       await facebookPromptAsync();
     } catch (error) {
       console.error("Facebook prompt error:", error);
       alert("Error opening Facebook login: " + (error instanceof Error ? error.message : "Unknown error"));
+    } finally {
+      setFbLoading(false);
     }
   };
 
@@ -111,11 +132,11 @@ const LoginScreen = () => {
           <TouchableOpacity
             style={[styles.loginButton, { backgroundColor: '#782701' }]}
             onPress={handleFacebookLogin}
-            disabled={loading}
+            disabled={loading || fbLoading}
           >
             <FontAwesome name="facebook" size={20} color="#fff" style={styles.icon} />
             <Text style={styles.loginButtonText}>
-              {loading ? "Cargando..." : "Iniciar sesión con Facebook"}
+              {fbLoading ? "Cargando..." : "Iniciar sesión con Facebook"}
             </Text>
           </TouchableOpacity>
 
