@@ -6,14 +6,13 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import { makeRedirectUri } from 'expo-auth-session';
-import { getAuth, signInWithCredential, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
-import { auth } from '../.env/firebaseConfig';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, FACEBOOK_APP_ID } from '../.env/clientsData';
 
 // Register your app with WebBrowser
 WebBrowser.maybeCompleteAuthSession();
 
 const redirectUri = makeRedirectUri();
+console.log("Google OAuth redirectUri:", redirectUri);
 
 const LoginScreen = () => {
   const router = useRouter();
@@ -35,14 +34,29 @@ const LoginScreen = () => {
     redirectUri, // Explicitly set the redirect URI
   });
 
-  // Handle Google Sign In
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      await googlePromptAsync();
+    } catch (error) {
+      console.error("Google prompt error:", error);
+      alert("Error opening Google login: " + (error instanceof Error ? error.message : "Unknown error"));
+      setLoading(false);
+    }
+  };
+
+  // Handle Google Sign In response
   useEffect(() => {
     if (googleResponse?.type === 'success') {
       setLoading(true);
       const { id_token } = googleResponse.params;
-      
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
+      if (!id_token) {
+        alert("No ID token returned from Google");
+        setLoading(false);
+        return;
+      }
+      const credential = auth.GoogleAuthProvider.credential(id_token);
+      auth().signInWithCredential(credential)
         .then((result) => {
           console.log("Google Sign-In Success:", result.user);
           router.push("/Perfil");
@@ -63,8 +77,8 @@ const LoginScreen = () => {
       setLoading(true);
       const { access_token } = facebookResponse.params;
       
-      const credential = FacebookAuthProvider.credential(access_token);
-      signInWithCredential(auth, credential)
+      const credential = auth.FacebookAuthProvider.credential(access_token);
+      auth().signInWithCredential(credential)
         .then((result) => {
           console.log("Facebook Sign-In Success:", result.user);
           router.push("/Perfil");
@@ -79,15 +93,6 @@ const LoginScreen = () => {
     }
   }, [facebookResponse]);
 
-  const handleGoogleLogin = async () => {
-    try {
-      await googlePromptAsync();
-    } catch (error) {
-      console.error("Google prompt error:", error);
-      alert("Error opening Google login: " + (error instanceof Error ? error.message : "Unknown error"));
-    }
-  };
-
   const handleFacebookLogin = async () => {
     try {
       await facebookPromptAsync();
@@ -98,11 +103,11 @@ const LoginScreen = () => {
   };
 
   return (
+    
       <View style={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>¡Bienvenido a Cocina Más!</Text>
           <Text style={styles.subtitle}>Inicia sesión y disfruta de la experiencia</Text>
-
           <TouchableOpacity
             style={[styles.loginButton, { backgroundColor: '#782701' }]}
             onPress={handleFacebookLogin}
