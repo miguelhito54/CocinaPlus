@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { auth } from '../../.env/firebaseConfig'; // Adjust path if needed
+import { auth } from '../../.env/firebaseConfig'; 
 
 const Perfil = () => {
   const router = useRouter();
   const user = auth.currentUser;
+  const [imgError, setImgError] = useState(false);
 
    const handleLogout = async () => {
     try {
@@ -26,26 +27,24 @@ const Perfil = () => {
       <View style={viewStyles.container}>
         <Text style={textStyles.header}>Mi Perfil</Text>
         <View style={viewStyles.card}>
-          {user?.photoURL ? (
-            Platform.OS === 'web' ? (
-              // Use native <img> for web to avoid CORS issues with react-native-web's Image
-              <img
-                src={user.photoURL}
-                alt="avatar"
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 50,
-                  objectFit: 'cover',
-                  backgroundColor: '#E6D5C3',
-                  marginBottom: 16,
-                  display: 'block'
-                }}
-                onError={e => { e.currentTarget.style.display = 'none'; }}
-              />
-            ) : (
-              <Image source={{ uri: user.photoURL }} style={viewStyles.avatar} />
-            )
+          {user?.photoURL && Platform.OS === 'web' && !imgError ? (
+            <img
+              src={user.photoURL}
+              alt="avatar"
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                objectFit: 'cover',
+                backgroundColor: '#E6D5C3',
+                marginBottom: 16,
+                display: 'block',
+                border: '2px solid #E6D5C3'
+              }}
+              onError={() => setImgError(true)}
+            />
+          ) : user?.photoURL && Platform.OS !== 'web' ? (
+            <Image source={{ uri: user.photoURL }} style={viewStyles.avatar} />
           ) : (
             <View style={[viewStyles.avatar, { backgroundColor: '#E6D5C3', justifyContent: 'center', alignItems: 'center' }]}>
               <AntDesign name="user" size={48} color="#b0a18e" />
@@ -88,7 +87,7 @@ const viewStyles = StyleSheet.create<{
 }>({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#FFF8F0', // Match login background
+    backgroundColor: '#FFF8F0', 
     alignItems: 'center',
     minHeight: Platform.OS === 'web' ? undefined : undefined,
   },
@@ -100,14 +99,14 @@ const viewStyles = StyleSheet.create<{
     paddingHorizontal: 24,
   },
   card: {
-    backgroundColor: '#fff', // Match login card
-    borderRadius: 16,        // Match login card radius
+    backgroundColor: '#fff', 
+    borderRadius: 16,        
     paddingVertical: 32,
     paddingHorizontal: 24,
     width: '100%',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.1,      // Match login shadow
+    shadowOpacity: 0.1,     
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
     elevation: 5,
@@ -121,10 +120,10 @@ const viewStyles = StyleSheet.create<{
     marginBottom: 16,
   },
   editButton: {
-    backgroundColor: '#782701', // Match login accent
+    backgroundColor: '#782701', 
     paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 10,           // Match login button radius
+    borderRadius: 10,          
     marginTop: 10,
   },
   logoutButton: {
@@ -132,7 +131,7 @@ const viewStyles = StyleSheet.create<{
     backgroundColor: '#B65D45',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 10,           // Match login button radius
+    borderRadius: 10,          
     alignSelf: 'center',
   },
 });
@@ -147,7 +146,7 @@ const textStyles = StyleSheet.create<{
   header: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#782701', // Match login accent
+    color: '#782701',
     marginBottom: 30,
     textAlign: 'center',
     marginTop: 30,
@@ -165,7 +164,7 @@ const textStyles = StyleSheet.create<{
   },
   editText: {
     fontSize: 15,
-    color: '#fff', // White text for dark button
+    color: '#fff',
     fontWeight: '500',
   },
   logoutText: {

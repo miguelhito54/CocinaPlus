@@ -1,4 +1,0 @@
-ignoredBuiltDependencies:
-  - protobufjs
-onlyBuiltDependencies:
-  - '@firebase/util'

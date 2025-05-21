@@ -1,35 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import * as AuthSession from 'expo-auth-session';
-import { auth } from '../.env/firebaseConfig'; // Adjust path if needed
+import { auth } from '../.env/firebaseConfig'; 
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, FACEBOOK_APP_ID } from '../.env/clientsData';
 import { signInWithCredential, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth'; // Import directly
 
-// Register your app with WebBrowser
 WebBrowser.maybeCompleteAuthSession();
 
-// NOTE: Custom scheme URIs (like cocinamas://redirect) only work in standalone or dev builds (not Expo Go).
-// If you see exp://... you are running in Expo Go. Use `npx expo run:android` or `npx expo run:ios` for dev builds.
-
-// WARNING: On Expo Go, you will always get exp://... as the redirectUri and Google login will NOT work on device.
-// To use Google login on a real device, run a dev build (`npx expo run:ios` or `npx expo run:android`)
-// or build a standalone app with EAS Build. Expo Go does NOT support custom schemes.
-// Use Expo proxy redirect URI for Expo Go compatibility
-
-// Log the Facebook redirect URI for debugging and Facebook console setup
-console.log('Facebook OAuth redirect URI:', AuthSession.makeRedirectUri({ useProxy: true }));
+console.log('Facebook OAuth redirect URI:', AuthSession.makeRedirectUri());
 
 const LoginScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fbLoading, setFbLoading] = useState(false);
 
-  // Google Authentication setup
+  // Google Auth
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
     clientId: Platform.OS === 'web'
       ? GOOGLE_WEB_CLIENT_ID
@@ -39,10 +29,10 @@ const LoginScreen = () => {
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    responseType: 'id_token', // Explicitly request id_token
+    responseType: 'id_token', 
   });
 
-  // Facebook Authentication setup
+
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
     clientId: FACEBOOK_APP_ID,
   });
@@ -224,3 +214,8 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
+// Hide header and back button for this screen in expo-router
+export const options = {
+  headerShown: false,
+};
