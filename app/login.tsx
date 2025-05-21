@@ -12,8 +12,6 @@ import { signInWithCredential, GoogleAuthProvider, FacebookAuthProvider } from '
 
 WebBrowser.maybeCompleteAuthSession();
 
-console.log('Facebook OAuth redirect URI:', AuthSession.makeRedirectUri());
-
 const LoginScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -32,9 +30,10 @@ const LoginScreen = () => {
     responseType: 'id_token', 
   });
 
-
+  // Facebook Auth
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
     clientId: FACEBOOK_APP_ID,
+    // No redirectUri, no useProxy, no scopes
   });
 
   const handleGoogleLogin = async () => {
@@ -45,6 +44,33 @@ const LoginScreen = () => {
       console.error("Google prompt error:", error);
       alert("Error opening Google login: " + (error instanceof Error ? error.message : "Unknown error"));
       setLoading(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      setFbLoading(true);
+      const result = await facebookPromptAsync();
+      console.log("Facebook prompt result:", result);
+      if (result?.type === 'success') {
+        // Success, handled by useEffect
+      } else if (result?.type === 'error') {
+        // Show more details for debugging
+        alert(
+          "Facebook login error: " +
+          (result.error?.message || result.error || "Unknown error") +
+          (result.params?.error_message ? "\n" + result.params.error_message : "")
+        );
+      } else if (result?.type === 'dismiss') {
+        alert("Facebook login was dismissed.");
+      } else {
+        alert("Facebook login was cancelled or failed.");
+      }
+    } catch (error) {
+      console.error("Facebook prompt error:", error);
+      alert("Error opening Facebook login: " + (error instanceof Error ? error.message : "Unknown error"));
+    } finally {
+      setFbLoading(false);
     }
   };
 
@@ -76,6 +102,9 @@ const LoginScreen = () => {
 
   // Handle Facebook Sign In
   useEffect(() => {
+    if (facebookResponse) {
+      console.log("Facebook response:", facebookResponse);
+    }
     if (facebookResponse?.type === 'success') {
       setFbLoading(true);
       const { access_token } = facebookResponse.params;
@@ -93,25 +122,20 @@ const LoginScreen = () => {
         })
         .catch((error) => {
           console.error("Facebook Sign-In Error:", error);
-          alert("Error signing in with Facebook: " + error.message);
+          if (
+            error.code === "auth/account-exists-with-different-credential" ||
+            error.message?.includes("auth/account-exists-with-different-credential")
+          ) {
+            alert("Iniciar sesión con: Facebook o Google (la cuenta ya existe con otro proveedor)");
+          } else {
+            alert("Error signing in with Facebook: " + error.message);
+          }
         })
         .finally(() => {
           setFbLoading(false);
         });
     }
   }, [facebookResponse]);
-
-  const handleFacebookLogin = async () => {
-    try {
-      setFbLoading(true);
-      await facebookPromptAsync();
-    } catch (error) {
-      console.error("Facebook prompt error:", error);
-      alert("Error opening Facebook login: " + (error instanceof Error ? error.message : "Unknown error"));
-    } finally {
-      setFbLoading(false);
-    }
-  };
 
   return (
     
