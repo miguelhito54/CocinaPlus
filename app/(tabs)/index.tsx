@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, FlatList, TouchableOpacity, ScrollView, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Image, FlatList, TouchableOpacity, ScrollView, Keyboard, Platform } from 'react-native';
 import { GetRecipesUseCase } from '@/recipees/application/GetRecipesUseCase';
 import { RecipeRepository } from '@/recipees/infrastructure/recipeeRepository';
 import { Recipe } from '@/recipees/domain/Recipe';
@@ -46,12 +46,6 @@ export default function HomeScreen() {
     );
   }, [search, allRecipes]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, []);
-
   const handleRecipePress = (recipe: Recipe) => {
     router.push({ pathname: '/recipeDetail', params: { id: recipe.id } });
   };
@@ -61,87 +55,86 @@ export default function HomeScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <Text style={styles.logo}>Cocina+</Text>
-        </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Logo */}
+      <View style={styles.logoContainer}>
+        <Text style={styles.logo}>Cocina+</Text>
+      </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchBarContainer}>
-          <View style={styles.searchBarWrapper}>
-            <TextInput
-              ref={searchInputRef}
-              style={styles.searchBar}
-              placeholder="Buscar recetas..."
-              placeholderTextColor="#999"
-              value={search}
-              onChangeText={setSearch}
-              autoFocus={Platform.OS === 'web'}
-            />
-            {search.length > 0 && (
-              <TouchableOpacity style={styles.clearButton} onPress={() => setSearch('')}>
-                <Text style={styles.clearButtonText}>×</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+      {/* Search Bar */}
+      <View style={styles.searchBarContainer}>
+        <View style={styles.searchBarWrapper}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Buscar recetas..."
+            placeholderTextColor="#999"
+            value={search}
+            onChangeText={setSearch}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="search"
+          />
+          {search.length > 0 && (
+            <TouchableOpacity style={styles.clearButton} onPress={() => setSearch('')}>
+              <Text style={styles.clearButtonText}>×</Text>
+            </TouchableOpacity>
+          )}
         </View>
-        {filteredRecipes.length > 0 && (
-          <View style={styles.resultsContainer}>
-            <ScrollView
-              style={{ maxHeight: 250 }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={true}
-            >
-              {filteredRecipes.map(item => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.resultItem}
-                  onPress={() => handleRecipePress(item)}
-                >
-                  <Image source={{ uri: item.imageUrl }} style={styles.resultImage} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.resultTitle}>{item.name}</Text>
-                    <Text style={styles.resultCategory}>{item.category}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* Categories Section */}
-        <View style={styles.categoriesContainer}>
-          <Text style={styles.categoriesTitle}>Categories</Text>
-          <FlatList
-            data={categoriesData}
-            keyExtractor={(item, index) => index.toString()}
-            numColumns={2}
-            scrollEnabled={false}
-            contentContainerStyle={styles.tilesContainer}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleCategoryPress(item)}>
-                <View style={styles.tile}>
-                  <View style={styles.tileImageContainer}>
-                    <Image
-                      source={{ uri: item.image }}
-                      style={styles.tileImage}
-                    />
-                  </View>
-                  <Text style={styles.tileTitle}>{item.name}</Text>
+      </View>
+      {filteredRecipes.length > 0 && (
+        <View style={styles.resultsContainer}>
+          <ScrollView
+            style={{ maxHeight: 250 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={true}
+          >
+            {filteredRecipes.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.resultItem}
+                onPress={() => handleRecipePress(item)}
+              >
+                <Image source={{ uri: item.imageUrl }} style={styles.resultImage} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.resultTitle}>{item.name}</Text>
+                  <Text style={styles.resultCategory}>{item.category}</Text>
                 </View>
               </TouchableOpacity>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
-      </ScrollView>
-    </TouchableWithoutFeedback>
+      )}
+
+      {/* Categories Section */}
+      <View style={styles.categoriesContainer}>
+        <Text style={styles.categoriesTitle}>Categories</Text>
+        <FlatList
+          data={categoriesData}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          scrollEnabled={false}
+          contentContainerStyle={styles.tilesContainer}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleCategoryPress(item)}>
+              <View style={styles.tile}>
+                <View style={styles.tileImageContainer}>
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.tileImage}
+                  />
+                </View>
+                <Text style={styles.tileTitle}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    </ScrollView>
   );
 }
 
@@ -180,10 +173,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', 
     padding: 10,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#782701', 
     color: '#782701', 
-    paddingRight: 36, // space for the X button
+    paddingRight: 36, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   clearButton: {
     position: 'absolute',
@@ -240,10 +236,13 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     padding: 10,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#782701', 
     marginBottom: 20,
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   categoriesTitle: {
     fontSize: 20,
@@ -256,9 +255,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 16,
     padding: 8,
-    borderWidth: 1,
-    borderColor: '#782701',
     maxHeight: 250,
+    // Add shadow like perfil card
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   resultItem: {
     flexDirection: 'row',

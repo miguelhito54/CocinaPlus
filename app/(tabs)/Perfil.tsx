@@ -69,6 +69,9 @@ const Perfil = () => {
           <Text style={textStyles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
       </View>
+      <Text style={textStyles.copyright}>
+        © Miguel, Andrea, Cristian, Paz
+      </Text>
     </View>
   );
 };
@@ -87,16 +90,16 @@ const viewStyles = StyleSheet.create<{
 }>({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#FFF8F0', 
+    backgroundColor: '#FFF8F0',
     alignItems: 'center',
-    minHeight: Platform.OS === 'web' ? undefined : undefined,
+    justifyContent: Platform.OS === 'web' ? 'center' : 'flex-start', // Centrado vertical solo en web
   },
   container: {
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
-    paddingTop: 40,
     paddingHorizontal: 24,
+    marginTop: Platform.OS === 'web' ? 0 : 120, // Solo margen arriba en móvil
   },
   card: {
     backgroundColor: '#fff', 
@@ -142,6 +145,7 @@ const textStyles = StyleSheet.create<{
   email: TextStyle;
   editText: TextStyle;
   logoutText: TextStyle;
+  copyright: TextStyle;
 }>({
   header: {
     fontSize: 30,
@@ -171,5 +175,13 @@ const textStyles = StyleSheet.create<{
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  copyright: {
+    fontSize: 12,
+    color: '#B65D45',
+    marginBottom: 10,
+    marginTop: 10,
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

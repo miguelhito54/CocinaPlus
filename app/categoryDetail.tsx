@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { RecipeRepository } from '@/recipees/infrastructure/recipeeRepository';
 import { Recipe } from '@/recipees/domain/Recipe';
 
 const CATEGORY_LABELS: Record<string, string> = {
     'Snacks': 'Snacks Curiosos y Saludables',
     'Cena': 'Cenas',
-    // Add more mappings if needed
 };
 
 const CategoryDetail: React.FC = () => {
@@ -16,6 +15,12 @@ const CategoryDetail: React.FC = () => {
     const category = CATEGORY_LABELS[rawCategory] || rawCategory;
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const router = useRouter();
+
+    // Hide the default header
+    const navigation = useNavigation();
+    React.useLayoutEffect(() => {
+        navigation.setOptions({ headerShown: false });
+    }, [navigation]);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -30,9 +35,15 @@ const CategoryDetail: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>
-                {category}
-            </Text>
+            {/* Custom header with back button, always transparent background */}
+            <View style={[styles.customHeader, styles.headerNoBackground]}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Text style={styles.backButtonText}>{'‹'}</Text>
+                </TouchableOpacity>
+                <View style={styles.headerTitleContainer}>
+                    <Text style={styles.headerTitle}>{category}</Text>
+                </View>
+            </View>
             <FlatList
                 data={recipes}
                 keyExtractor={(item) => item.id}
@@ -76,16 +87,58 @@ const CategoryDetail: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        paddingHorizontal: 16,
         backgroundColor: '#FFF8F0',
     },
-    title: {
-        fontSize: 28,
+    customHeader: {
+        height: 56,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        borderRadius: 12,
+        marginBottom: 16,
+        paddingHorizontal: 8,
+        marginTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : 32,
+    },
+    headerNoBackground: {
+        backgroundColor: 'transparent',
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    backButton: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        width: 48,
+        zIndex: 2,
+    },
+    backButtonText: {
+        fontSize: 38,
+        color: '#782701',
+        fontWeight: 'bold',
+        lineHeight: 40,
+        textAlign: 'center',
+    },
+    headerTitleContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1,
+    },
+    headerTitle: {
+        fontSize: 18, // Decreased from 24
         fontWeight: 'bold',
         color: '#782701',
-        marginBottom: 20,
-        textAlign: 'center',
         letterSpacing: 1,
+        textAlign: 'center',
+    },
+    title: {
+        display: 'none',
     },
     listContent: {
         paddingBottom: 32,
