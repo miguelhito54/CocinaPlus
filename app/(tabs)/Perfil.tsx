@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-const AVATAR_URL = 'https://i.pravatar.cc/150?img=3'; 
+import { auth } from '../../.env/firebaseConfig'; 
 
 const Perfil = () => {
   const router = useRouter();
+  const user = auth.currentUser;
+  const [imgError, setImgError] = useState(false);
 
-  const handleLogout = () => {
-    console.log('User logged out');
+   const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const handleCrudNavigate = () => {
@@ -21,12 +27,41 @@ const Perfil = () => {
       <View style={viewStyles.container}>
         <Text style={textStyles.header}>Mi Perfil</Text>
         <View style={viewStyles.card}>
-          <Image source={{ uri: AVATAR_URL }} style={viewStyles.avatar} />
-          <Text style={textStyles.name}>Miguel</Text>
-          <Text style={textStyles.email}>miguel@example.com</Text>
-          <TouchableOpacity style={viewStyles.editButton} onPress={handleCrudNavigate}>
+          {user?.photoURL && Platform.OS === 'web' && !imgError ? (
+            <img
+              src={user.photoURL}
+              alt="avatar"
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                objectFit: 'cover',
+                backgroundColor: '#E6D5C3',
+                marginBottom: 16,
+                display: 'block',
+                border: '2px solid #E6D5C3'
+              }}
+              onError={() => setImgError(true)}
+            />
+          ) : user?.photoURL && Platform.OS !== 'web' ? (
+            <Image source={{ uri: user.photoURL }} style={viewStyles.avatar} />
+          ) : (
+            <View style={[viewStyles.avatar, { backgroundColor: '#E6D5C3', justifyContent: 'center', alignItems: 'center' }]}>
+              <AntDesign name="user" size={48} color="#b0a18e" />
+            </View>
+          )}
+          <Text style={textStyles.name}>{user?.displayName || "Invitado"}</Text>
+          <Text style={textStyles.email}>{user?.email || "Sin email"}</Text>
+          <TouchableOpacity
+            style={[
+              viewStyles.editButton,
+              !user && { opacity: 0.5 }
+            ]}
+            onPress={handleCrudNavigate}
+            disabled={!user}
+          >
             <Text style={textStyles.editText}>
-              <AntDesign name="edit" size={20} color="#5a4633" /> Gestionar recetas
+              <AntDesign name="edit" size={20} color="#fff" /> Gestionar recetas
             </Text>
           </TouchableOpacity>
         </View>
@@ -34,6 +69,9 @@ const Perfil = () => {
           <Text style={textStyles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
       </View>
+      <Text style={textStyles.copyright}>
+        © Miguel, Andrea, Cristian, Paz
+      </Text>
     </View>
   );
 };
@@ -52,29 +90,29 @@ const viewStyles = StyleSheet.create<{
 }>({
   outerContainer: {
     flex: 1,
-    backgroundColor: '#FAF3EC',
+    backgroundColor: '#FFF8F0',
     alignItems: 'center',
-    minHeight: Platform.OS === 'web' ? undefined : undefined, // Remove '100vh' for web, as it's not valid ViewStyle
+    justifyContent: Platform.OS === 'web' ? 'center' : 'flex-start', // Centrado vertical solo en web
   },
   container: {
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
-    paddingTop: 40,
     paddingHorizontal: 24,
+    marginTop: Platform.OS === 'web' ? 0 : 120, // Solo margen arriba en móvil
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: '#fff', 
+    borderRadius: 16,        
     paddingVertical: 32,
     paddingHorizontal: 24,
     width: '100%',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.1,     
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
-    elevation: 4,
+    elevation: 5,
     marginBottom: 24,
   },
   avatar: {
@@ -85,17 +123,18 @@ const viewStyles = StyleSheet.create<{
     marginBottom: 16,
   },
   editButton: {
-    backgroundColor: '#DAB49D',
+    backgroundColor: '#782701', 
     paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 14,
+    borderRadius: 10,          
+    marginTop: 10,
   },
   logoutButton: {
     marginTop: 10,
     backgroundColor: '#B65D45',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 16,
+    borderRadius: 10,          
     alignSelf: 'center',
   },
 });
@@ -106,11 +145,12 @@ const textStyles = StyleSheet.create<{
   email: TextStyle;
   editText: TextStyle;
   logoutText: TextStyle;
+  copyright: TextStyle;
 }>({
   header: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#5A3E2B',
+    color: '#782701',
     marginBottom: 30,
     textAlign: 'center',
     marginTop: 30,
@@ -128,12 +168,20 @@ const textStyles = StyleSheet.create<{
   },
   editText: {
     fontSize: 15,
-    color: '#4B2F22',
+    color: '#fff',
     fontWeight: '500',
   },
   logoutText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  copyright: {
+    fontSize: 12,
+    color: '#B65D45',
+    marginBottom: 10,
+    marginTop: 10,
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

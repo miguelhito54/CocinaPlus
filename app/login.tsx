@@ -1,37 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Facebook from 'expo-auth-session/providers/facebook';
-import { makeRedirectUri } from 'expo-auth-session';
+import * as AuthSession from 'expo-auth-session';
+import { auth } from '../.env/firebaseConfig'; 
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, FACEBOOK_APP_ID } from '../.env/clientsData';
+import { signInWithCredential, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth'; // Import directly
 
-// Register your app with WebBrowser
 WebBrowser.maybeCompleteAuthSession();
-
-const redirectUri = makeRedirectUri();
-console.log("Google OAuth redirectUri:", redirectUri);
 
 const LoginScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [fbLoading, setFbLoading] = useState(false);
 
-  // Google Authentication setup
+  // Google Auth
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    clientId: Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : GOOGLE_ANDROID_CLIENT_ID,
+    clientId: Platform.OS === 'web'
+      ? GOOGLE_WEB_CLIENT_ID
+      : Platform.OS === 'ios'
+        ? GOOGLE_IOS_CLIENT_ID
+        : GOOGLE_ANDROID_CLIENT_ID,
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    redirectUri, // Explicitly set the redirect URI
+    responseType: 'id_token', 
   });
 
-  // Facebook Authentication setup
+  // Facebook Auth
   const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
     clientId: FACEBOOK_APP_ID,
-    scopes: ['email'], // Request the email permission
-    redirectUri, // Explicitly set the redirect URI
+    // No redirectUri, no useProxy, no scopes
   });
 
   const handleGoogleLogin = async () => {
@@ -45,6 +47,33 @@ const LoginScreen = () => {
     }
   };
 
+  const handleFacebookLogin = async () => {
+    try {
+      setFbLoading(true);
+      const result = await facebookPromptAsync();
+      console.log("Facebook prompt result:", result);
+      if (result?.type === 'success') {
+        // Success, handled by useEffect
+      } else if (result?.type === 'error') {
+        // Show more details for debugging
+        alert(
+          "Facebook login error: " +
+          (result.error?.message || result.error || "Unknown error") +
+          (result.params?.error_message ? "\n" + result.params.error_message : "")
+        );
+      } else if (result?.type === 'dismiss') {
+        alert("Facebook login was dismissed.");
+      } else {
+        alert("Facebook login was cancelled or failed.");
+      }
+    } catch (error) {
+      console.error("Facebook prompt error:", error);
+      alert("Error opening Facebook login: " + (error instanceof Error ? error.message : "Unknown error"));
+    } finally {
+      setFbLoading(false);
+    }
+  };
+
   // Handle Google Sign In response
   useEffect(() => {
     if (googleResponse?.type === 'success') {
@@ -55,8 +84,8 @@ const LoginScreen = () => {
         setLoading(false);
         return;
       }
-      const credential = auth.GoogleAuthProvider.credential(id_token);
-      auth().signInWithCredential(credential)
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential)
         .then((result) => {
           console.log("Google Sign-In Success:", result.user);
           router.push("/Perfil");
@@ -73,34 +102,40 @@ const LoginScreen = () => {
 
   // Handle Facebook Sign In
   useEffect(() => {
+    if (facebookResponse) {
+      console.log("Facebook response:", facebookResponse);
+    }
     if (facebookResponse?.type === 'success') {
-      setLoading(true);
+      setFbLoading(true);
       const { access_token } = facebookResponse.params;
-      
-      const credential = auth.FacebookAuthProvider.credential(access_token);
-      auth().signInWithCredential(credential)
+      if (!access_token) {
+        alert("No access token returned from Facebook");
+        setFbLoading(false);
+        return;
+      }
+      const credential = FacebookAuthProvider.credential(access_token);
+      signInWithCredential(auth, credential)
         .then((result) => {
           console.log("Facebook Sign-In Success:", result.user);
-          router.push("/Perfil");
+          // Redirect to Perfil after successful sign-in
+          router.replace("/Perfil");
         })
         .catch((error) => {
           console.error("Facebook Sign-In Error:", error);
-          alert("Error signing in with Facebook: " + error.message);
+          if (
+            error.code === "auth/account-exists-with-different-credential" ||
+            error.message?.includes("auth/account-exists-with-different-credential")
+          ) {
+            alert("Iniciar sesión con: Facebook o Google (la cuenta ya existe con otro proveedor)");
+          } else {
+            alert("Error signing in with Facebook: " + error.message);
+          }
         })
         .finally(() => {
-          setLoading(false);
+          setFbLoading(false);
         });
     }
   }, [facebookResponse]);
-
-  const handleFacebookLogin = async () => {
-    try {
-      await facebookPromptAsync();
-    } catch (error) {
-      console.error("Facebook prompt error:", error);
-      alert("Error opening Facebook login: " + (error instanceof Error ? error.message : "Unknown error"));
-    }
-  };
 
   return (
     
@@ -111,11 +146,11 @@ const LoginScreen = () => {
           <TouchableOpacity
             style={[styles.loginButton, { backgroundColor: '#782701' }]}
             onPress={handleFacebookLogin}
-            disabled={loading}
+            disabled={loading || fbLoading}
           >
             <FontAwesome name="facebook" size={20} color="#fff" style={styles.icon} />
             <Text style={styles.loginButtonText}>
-              {loading ? "Cargando..." : "Iniciar sesión con Facebook"}
+              {fbLoading ? "Cargando..." : "Iniciar sesión con Facebook"}
             </Text>
           </TouchableOpacity>
 
@@ -203,3 +238,8 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
+// Hide header and back button for this screen in expo-router
+export const options = {
+  headerShown: false,
+};
