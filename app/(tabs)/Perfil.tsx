@@ -70,7 +70,7 @@ const Perfil = () => {
         </TouchableOpacity>
       </View>
       <Text style={textStyles.copyright}>
-        © Miguel, Andrea, Cristian, Paz
+        © Miguel, Andrea, Christian, Paz
       </Text>
     </View>
   );
